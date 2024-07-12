@@ -15,6 +15,7 @@
     mode: "0644"
     state: "present"
   loop: "{{ environment_vars | dict2items }}"
+  notify: "Restart system-logind"
 
 - name: "Ensure /etc/environment.d exists"
   ansible.builtin.file:
@@ -30,3 +31,4 @@
     dest: "/etc/environment.d/{{ item.name }}"
     mode: "0644"
   loop: "{{ environment_d_files }}"
+  notify: "Restart system-logind"

@@ -1,0 +1,8 @@
+---
+# repo: jomrr.environment
+# file: handlers/main.yml
+
+- name: "Restart system-logind"
+  ansible.builtin.service:
+    name: "systemd-logind"
+    state: "restarted"
