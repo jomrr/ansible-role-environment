@@ -1,0 +1,6 @@
+# /etc/environment.d/{{ item.name }}
+# {{ ansible_managed }}
+
+{% for key in item.entries -%}
+{{ key }}="{{ item.entries[key] }}"
+{% endfor -%}

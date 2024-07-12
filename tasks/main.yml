@@ -1,0 +1,32 @@
+---
+# role: jomrr.environment
+# file: tasks/main.yml
+
+- name: "Debug"
+  ansible.builtin.debug:
+    msg: "{{ item }}"
+  loop: "{{ environment_d_files | map(attribute='entries') }}"
+
+- name: "Add entries to /etc/environment"
+  ansible.builtin.lineinfile:
+    path: "/etc/environment"
+    line: "{{ item.key }}=\"{{ item.value }}\""
+    create: true
+    mode: "0644"
+    state: "present"
+  loop: "{{ environment_vars | dict2items }}"
+
+- name: "Ensure /etc/environment.d exists"
+  ansible.builtin.file:
+    path: "/etc/environment.d"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: "Create configured environment.d files"
+  ansible.builtin.template:
+    src: "environment.d.j2"
+    dest: "/etc/environment.d/{{ item.name }}"
+    mode: "0644"
+  loop: "{{ environment_d_files }}"

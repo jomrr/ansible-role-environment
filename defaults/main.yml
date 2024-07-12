@@ -1,0 +1,18 @@
+---
+# role: jomrr.environment
+# file: defaults/main.yml
+
+# go directly in /etc/environment
+environment_vars:
+  http_proxy: "http://10.10.10.10:9090"
+
+# go in /etc/environment.d/{{ item.name }}
+environment_d_files: []
+  # - name: "99-proxy.conf"
+  #   entries:
+  #     http_proxy: "http://10.10.10.10:9090"
+  #     https_proxy: "http://10.10.10.10:9090"
+  #     no_proxy: "127.0.0.1,localhost"
+  # - name: "99-test.conf"
+  #   entries:
+  #     test_key: "test_value"
