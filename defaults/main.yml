@@ -3,8 +3,8 @@
 # file: defaults/main.yml
 
 # go directly in /etc/environment
-environment_vars:
-  http_proxy: "http://10.10.10.10:9090"
+environment_vars: {}
+  # http_proxy: "http://10.10.10.10:9090"
 
 # go in /etc/environment.d/{{ item.name }}
 environment_d_files: []
