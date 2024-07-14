@@ -2,11 +2,6 @@
 # role: jomrr.environment
 # file: tasks/main.yml
 
-- name: "Debug"
-  ansible.builtin.debug:
-    msg: "{{ item }}"
-  loop: "{{ environment_d_files | map(attribute='entries') }}"
-
 - name: "Add entries to /etc/environment"
   ansible.builtin.lineinfile:
     path: "/etc/environment"
@@ -23,12 +18,12 @@
     state: "directory"
     owner: "root"
     group: "root"
-    mode: "0755"
+    mode: "0750"
 
 - name: "Create configured environment.d files"
   ansible.builtin.template:
     src: "environment.d.j2"
     dest: "/etc/environment.d/{{ item.name }}"
-    mode: "0644"
+    mode: "0640"
   loop: "{{ environment_d_files }}"
   notify: "Restart system-logind"
