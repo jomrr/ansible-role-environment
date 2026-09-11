@@ -1,0 +1,37 @@
+---
+# role: environment
+# file: tasks/assert.yml
+
+- name: ENVIRONMENT | Validate login environment entries
+  ansible.builtin.assert:
+    that:
+      - __environment_entry.key is match('^[A-Za-z_][A-Za-z0-9_]*\Z')
+      - __environment_entry.value is string
+      - __environment_entry.value is not search('[\\x00\\r\\n"\\\\#]')
+    quiet: true
+    fail_msg: Login environment entries require valid variable names and portable PAM/systemd string values.
+  loop: "{{ environment_vars | dict2items }}"
+  loop_control:
+    loop_var: __environment_entry
+    label: "{{ __environment_entry.key }}"
+
+- name: ENVIRONMENT | Validate unique drop-in names
+  ansible.builtin.assert:
+    that:
+      - environment_d_files | map(attribute='name') | unique(case_sensitive=true) | length == environment_d_files | length
+    quiet: true
+    fail_msg: Drop-in file names must be unique.
+
+- name: ENVIRONMENT | Validate drop-in files
+  ansible.builtin.assert:
+    that:
+      - __environment_file.name is match('^[^./\\\\\\s\\x00][^/\\\\\\s\\x00]*\\.conf\\Z')
+      - __environment_file.entries.keys() | reject('match', '^[A-Za-z_][A-Za-z0-9_]*\Z') | list | length == 0
+      - __environment_file.entries.values() | reject('string') | list | length == 0
+      - __environment_file.entries.values() | select('search', '\x00') | list | length == 0
+    quiet: true
+    fail_msg: Drop-ins require a visible .conf basename without separators or whitespace, valid variable names and string values without NUL.
+  loop: "{{ environment_d_files }}"
+  loop_control:
+    loop_var: __environment_file
+    label: "{{ __environment_file.name }}"

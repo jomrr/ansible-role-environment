@@ -1,7 +1,8 @@
-# role: jomrr.environment
+---
+# role: environment
 # file: molecule/resources/playbooks/converge.yml
 
-- name: "PLAYBOOK | Converge | environment"
+- name: "Molecule | converge | environment"
   hosts: all
   gather_facts: true
   roles:

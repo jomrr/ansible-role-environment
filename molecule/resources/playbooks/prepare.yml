@@ -1,33 +1,55 @@
-# role: jomrr.environment
+---
+# role: environment
 # file: molecule/resources/playbooks/prepare.yml
 
-- name: "PLAYBOOK | Prepare | environment"
+- name: ENVIRONMENT | Prepare existing configuration
   hosts: all
-  become: true
-  gather_facts: true
+  gather_facts: false
   tasks:
-    - name: "Update apk cache"
-      community.general.apk:
-        update_cache: true
-      when: ansible_pkg_mgr == "apk"
+    - name: ENVIRONMENT | Wait for test instances to become reachable
+      ansible.builtin.wait_for_connection:
+        timeout: 60
 
-    - name: "Update apt cache"
-      ansible.builtin.apt:
-        update_cache: true
-      when: ansible_pkg_mgr == "apt"
+    - name: ENVIRONMENT | Create environment consumer
+      become: true
+      become_user: root
+      ansible.builtin.user:
+        name: environment_molecule
+        system: true
+        home: /home/environment_molecule
+        create_home: true
 
-    - name: "Update dnf cache"
-      ansible.builtin.dnf:
-        update_cache: true
-      when: ansible_pkg_mgr == "dnf"
+    - name: ENVIRONMENT | Seed duplicate login assignments
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        dest: /etc/environment
+        content: |
+          # Unmanaged configuration must survive convergence.
+          ENVIRONMENT_TEST_UNMANAGED="preserved"
+          ENVIRONMENT_TEST_VALUE="initial"
+          ENVIRONMENT_TEST_VALUE="stale"
+        owner: root
+        group: root
+        mode: "0644"
 
-    - name: "Update pacman cache"
-      community.general.pacman:
-        update_cache: true
-      when: ansible_pkg_mgr == "pacman"
+    - name: ENVIRONMENT | Seed inaccessible drop-in directory
+      become: true
+      become_user: root
+      ansible.builtin.file:
+        path: /etc/environment.d
+        state: directory
+        owner: root
+        group: root
+        mode: "0750"
 
-    - name: "Update zypper cache"
-      community.general.zypper:
-        name: sudo
-        update_cache: true
-      when: ansible_pkg_mgr == "zypper"
+    - name: ENVIRONMENT | Seed inaccessible drop-in
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        dest: /etc/environment.d/90-environment-molecule.conf
+        content: |
+          ENVIRONMENT_TEST_DROPIN="stale"
+        owner: root
+        group: root
+        mode: "0640"

@@ -1,29 +1,50 @@
 ---
-# role: jomrr.environment
+# role: environment
 # file: tasks/main.yml
 
-- name: "Add entries to /etc/environment"
-  ansible.builtin.lineinfile:
-    path: "/etc/environment"
-    line: "{{ item.key }}=\"{{ item.value }}\""
-    create: true
+- name: ENVIRONMENT | Validate configuration
+  ansible.builtin.import_tasks: assert.yml
+
+- name: ENVIRONMENT | Configure login environment
+  become: true
+  become_user: root
+  community.general.ini_file:
+    path: /etc/environment
+    option: "{{ __environment_entry.key }}"
+    value: '"{{ __environment_entry.value }}"'
+    no_extra_spaces: true
+    exclusive: true
+    modify_inactive_option: false
+    owner: root
+    group: root
     mode: "0644"
-    state: "present"
+    backup: true
   loop: "{{ environment_vars | dict2items }}"
-  notify: "Restart system-logind"
+  loop_control:
+    loop_var: __environment_entry
+    label: "{{ __environment_entry.key }}"
 
-- name: "Ensure /etc/environment.d exists"
+- name: ENVIRONMENT | Create drop-in directory
+  become: true
+  become_user: root
   ansible.builtin.file:
-    path: "/etc/environment.d"
-    state: "directory"
-    owner: "root"
-    group: "root"
-    mode: "0750"
+    path: /etc/environment.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
 
-- name: "Create configured environment.d files"
+- name: ENVIRONMENT | Configure user-service environment
+  become: true
+  become_user: root
   ansible.builtin.template:
-    src: "environment.d.j2"
-    dest: "/etc/environment.d/{{ item.name }}"
-    mode: "0640"
+    src: environment.d.j2
+    dest: "/etc/environment.d/{{ __environment_file.name }}"
+    owner: root
+    group: root
+    mode: "0644"
+    backup: true
   loop: "{{ environment_d_files }}"
-  notify: "Restart system-logind"
+  loop_control:
+    loop_var: __environment_file
+    label: "{{ __environment_file.name }}"

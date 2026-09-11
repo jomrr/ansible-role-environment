@@ -1,11 +1,31 @@
-# role: jomrr.environment
+---
+# role: environment
 # file: molecule/resources/playbooks/verify.yml
 
-- name: "PLAYBOOK | Verify | environment"
+- name: ENVIRONMENT | Verify effective user environment
   hosts: all
   gather_facts: false
   tasks:
-    - name: "Assert true"
+    - name: ENVIRONMENT | Read generated environment as an ordinary user
+      become: true
+      become_user: environment_molecule
+      ansible.builtin.shell: |
+        set -eu
+        set -a
+        . /etc/environment
+        __environment_assignments="$(/usr/lib/systemd/user-environment-generators/30-systemd-environment-d-generator)"
+        eval "$__environment_assignments"
+        unset __environment_assignments
+        env
+      changed_when: false
+      register: __environment_generated
+
+    - name: ENVIRONMENT | Verify exported values and preserved assignments
       ansible.builtin.assert:
-        that: "true"
-        fail_msg: "This should never fail"
+        that:
+          - dict(__environment_generated.stdout_lines | map('split', '=', 1))[__environment_entry.key] == __environment_entry.value
+        quiet: true
+      loop: "{{ __environment_expected | dict2items }}"
+      loop_control:
+        loop_var: __environment_entry
+        label: "{{ __environment_entry.key }}"

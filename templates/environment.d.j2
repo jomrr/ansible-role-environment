@@ -1,6 +1,6 @@
-# /etc/environment.d/{{ item.name }}
-# {{ ansible_managed }}
+# Managed by ansible.
+# file: {{ template_destpath }}
 
-{% for key in item.entries -%}
-{{ key }}="{{ item.entries[key] }}"
-{% endfor -%}
+{% for __environment_key, __environment_value in __environment_file.entries.items() %}
+{{ __environment_key }}="{{ __environment_value | replace('\\', '\\\\') | replace('"', '\\"') }}"
+{% endfor %}

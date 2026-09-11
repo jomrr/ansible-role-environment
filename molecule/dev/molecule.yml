@@ -1,6 +1,6 @@
 ---
 # role: environment
-# file: molecule/default/molecule.yml
+# file: molecule/dev/molecule.yml
 
 dependency:
   name: "galaxy"
@@ -60,10 +60,35 @@ scenario:
     - "check"
     - "verify"
     - "destroy"
-  name: "default"
+  name: "dev"
 platforms:
-  - name: "environment"
-    image: "docker.io/${uns:-jomrr}/molecule-${img:-fedora}:${tag:-latest}"
+  - name: "almalinux-latest-environment"
+    image: "docker.io/jomrr/molecule-almalinux:latest"
+    pre_build_image: true
+    override_command: false
+    systemd: "true"
+  - name: "debian-latest-environment"
+    image: "docker.io/jomrr/molecule-debian:latest"
+    pre_build_image: true
+    override_command: false
+    systemd: "true"
+  - name: "fedora-latest-environment"
+    image: "docker.io/jomrr/molecule-fedora:latest"
+    pre_build_image: true
+    override_command: false
+    systemd: "true"
+  - name: "opensuse-leap-latest-environment"
+    image: "docker.io/jomrr/molecule-opensuse-leap:latest"
+    pre_build_image: true
+    override_command: false
+    systemd: "true"
+  - name: "opensuse-tumbleweed-latest-environment"
+    image: "docker.io/jomrr/molecule-opensuse-tumbleweed:latest"
+    pre_build_image: true
+    override_command: false
+    systemd: "true"
+  - name: "ubuntu-latest-environment"
+    image: "docker.io/jomrr/molecule-ubuntu:latest"
     pre_build_image: true
     override_command: false
     systemd: "true"

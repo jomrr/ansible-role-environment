@@ -1,18 +1,16 @@
 ---
-# role: jomrr.environment
+# role: environment
 # file: defaults/main.yml
 
-# go directly in /etc/environment
+# String values for named assignments in /etc/environment; other names are preserved.
+# Values use the portable PAM/systemd subset documented in the README.
 environment_vars: {}
-  # http_proxy: "http://10.10.10.10:9090"
+# http_proxy: "http://proxy.example.org:3128"
+# no_proxy: "127.0.0.1,localhost"
 
-# go in /etc/environment.d/{{ item.name }}
+# Complete environment.d files with unique .conf names and string-valued entries.
 environment_d_files: []
-  # - name: "99-proxy.conf"
-  #   entries:
-  #     http_proxy: "http://10.10.10.10:9090"
-  #     https_proxy: "http://10.10.10.10:9090"
-  #     no_proxy: "127.0.0.1,localhost"
-  # - name: "99-test.conf"
-  #   entries:
-  #     test_key: "test_value"
+# - name: "90-application.conf"
+#   entries:
+#     APPLICATION_LABEL: 'Example "application"'
+#     APPLICATION_PATH: '/opt/application/bin:$PATH'

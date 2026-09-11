@@ -1,0 +1,37 @@
+---
+# role: environment
+# file: meta/argument_specs.yml
+
+argument_specs:
+  main:
+    short_description: Ansible role for setting up /etc/environment(.d).
+    options:
+      environment_vars:
+        type: dict
+        default: {}
+        description:
+          - Environment variable names mapped to string values in /etc/environment.
+          - Values must be single-line strings without double quotes, backslashes, hash
+            or NUL characters for PAM and systemd compatibility.
+          - Unlisted variables and comments are preserved; duplicate assignments for managed
+            names are consolidated.
+      environment_d_files:
+        type: list
+        elements: dict
+        default: []
+        description:
+          - Complete environment.d drop-ins, readable by all users.
+          - Unlisted files are preserved.
+        options:
+          name:
+            type: str
+            required: true
+            description:
+              - Unique file name ending in .conf, without a leading dot, path separators
+                or whitespace.
+          entries:
+            type: dict
+            required: true
+            description:
+              - Environment variable names mapped to string values without NUL characters.
+              - Quotes and backslashes are escaped; systemd variable expansion remains available.
